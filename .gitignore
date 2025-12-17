@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pyc
+/bb84.py
+/qiskit_bb84.py
+/qiskit_bb84_demo.py
+/qkd.ipynb
+readMe.md
+rsa.ipynb
+rsa.py
+task_breakdown.md
