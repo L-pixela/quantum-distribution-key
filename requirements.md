@@ -5,3 +5,4 @@ matplotlib
 sympy
 numpy 
 pandas
+seaborn
