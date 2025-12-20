@@ -186,13 +186,13 @@ if demo_selection == "🏠 Home":
     st.table(pd.DataFrame(timeline_data))
 
 # -------------------------------
-# RSA ENCRYPTION DEMO
+# RSA ENCRYPTION DEMO - DARK THEME
 # -------------------------------
 elif demo_selection == "🔐 RSA Encryption":
     st.title("🔐 RSA Encryption Demo")
     st.markdown("Classical public-key cryptography based on prime factorization")
     
-    # RSA Functions
+    # RSA Functions (same as before)
     def generate_keys(bits):
         start = time_module.time()
         
@@ -210,7 +210,6 @@ elif demo_selection == "🔐 RSA Encryption":
     
     def encrypt(message, e, n):
         start = time_module.time()
-        # Split into chunks for large messages
         chunk_size = (n.bit_length() // 8) - 1
         cipher_chunks = []
         
@@ -228,7 +227,6 @@ elif demo_selection == "🔐 RSA Encryption":
         
         for cipher in cipher_chunks:
             numeric = pow(cipher, d, n)
-            # Convert back to bytes then to string
             byte_length = (numeric.bit_length() + 7) // 8
             bytes_data = numeric.to_bytes(byte_length, 'big')
             message_parts.append(bytes_data.decode('utf-8', errors='ignore'))
@@ -238,14 +236,9 @@ elif demo_selection == "🔐 RSA Encryption":
     
     def get_grovers_time(bits):
         """Grover's algorithm time for symmetric key search (simplified)"""
-        # Grover's provides quadratic speedup: O(√N) instead of O(N)
         key_space = 2 ** bits
-        
-        # Classical brute force
         classical_operations = key_space / 2
         classical_time_seconds = classical_operations / (1e12)
-        
-        # Grover's quantum speedup
         quantum_operations = math.sqrt(key_space)
         quantum_time_seconds = quantum_operations / (1e6)
         
@@ -323,7 +316,7 @@ elif demo_selection == "🔐 RSA Encryption":
         }
 
     # ============================================
-    # SIDEBAR CONTROLS ONLY
+    # SIDEBAR CONTROLS ONLY - DARK THEME
     # ============================================
     st.sidebar.header("🔧 RSA Controls")
     
@@ -338,11 +331,10 @@ elif demo_selection == "🔐 RSA Encryption":
     )
     
     if generation_mode == "Single Key":
-        # Single key selection
         key_size = st.sidebar.selectbox(
             "Select RSA Key Size (bits):",
             [256, 512, 1024, 2048, 3072, 4096],
-            index=2,  # Default to 1024
+            index=2,
             key="rsa_single_size"
         )
         
@@ -350,7 +342,6 @@ elif demo_selection == "🔐 RSA Encryption":
             with st.spinner(f"Generating {key_size}-bit RSA key..."):
                 n, e, d, p, q, keygen_time = generate_keys(key_size)
             
-            # Store in session state
             st.session_state.current_key = {
                 'size': key_size,
                 'n': n, 'e': e, 'd': d, 'p': p, 'q': q,
@@ -361,10 +352,9 @@ elif demo_selection == "🔐 RSA Encryption":
             st.session_state.mode = "single"
             st.sidebar.success(f"{key_size}-bit key generated!")
             
-    else:  # Multiple Keys
+    else:
         st.sidebar.markdown("Select multiple key sizes to generate:")
         
-        # Multi-select for multiple keys
         selected_sizes = st.sidebar.multiselect(
             "Choose key sizes:",
             [256, 512, 1024, 2048, 3072, 4096],
@@ -399,7 +389,6 @@ elif demo_selection == "🔐 RSA Encryption":
         st.sidebar.subheader("2. Encryption/Decryption")
         
         if st.session_state.mode == "multiple":
-            # Let user select which key to use from generated ones
             available_keys = list(st.session_state.generated_keys.keys())
             selected_key = st.sidebar.selectbox(
                 "Select key to use:",
@@ -411,7 +400,6 @@ elif demo_selection == "🔐 RSA Encryption":
         else:
             current_key_data = st.session_state.current_key
         
-        # Message input in sidebar
         message = st.sidebar.text_area(
             "Message to encrypt:",
             "Hello Quantum World!",
@@ -448,39 +436,193 @@ elif demo_selection == "🔐 RSA Encryption":
         if st.session_state.mode == "multiple":
             st.sidebar.subheader("3. Performance Analysis")
             
-            compare_count = st.sidebar.slider(
-                "Keys to compare:",
-                min_value=2,
-                max_value=min(6, len(st.session_state.generated_keys)),
-                value=min(3, len(st.session_state.generated_keys)),
-                key="compare_slider"
-            )
-            
-            # Let user select which keys to compare
-            available_keys = list(st.session_state.generated_keys.keys())
-            keys_to_compare = st.sidebar.multiselect(
-                f"Select keys to compare (max {compare_count}):",
-                available_keys,
-                default=available_keys[:min(compare_count, len(available_keys))],
-                max_selections=compare_count,
-                key="compare_select"
-            )
-            
-            st.session_state.keys_to_compare = keys_to_compare
+            num_generated_keys = len(st.session_state.generated_keys)
+    
+            if num_generated_keys >= 2:
+                
+                # When we have exactly 2 keys, set max_value to 2 but value to 2
+                max_keys_to_compare = min(6, num_generated_keys)
+                
+                # Set initial value to 2 if we have exactly 2 keys
+                initial_value = min(3, num_generated_keys)
+                
+                # OR use a selectbox instead of slider for 2 keys
+                if num_generated_keys == 2:
+                    # When only 2 keys, just show a fixed value
+                    st.sidebar.markdown(f"**Keys to compare:** 2 (all available)")
+                    compare_count = 2
+                    st.session_state.compare_count = compare_count
+                else:
+                    compare_count = st.sidebar.slider(
+                        "Keys to compare:",
+                        min_value=2,
+                        max_value=max_keys_to_compare,
+                        value=initial_value,
+                        key="compare_slider"
+                    )
+                    st.session_state.compare_count = compare_count
+                
+                # Let user select which keys to compare
+                available_keys = list(st.session_state.generated_keys.keys())
+                keys_to_compare = st.sidebar.multiselect(
+                    f"Select keys to compare (max {compare_count}):",
+                    available_keys,
+                    default=available_keys[:min(compare_count, num_generated_keys)],
+                    max_selections=compare_count,
+                    key="compare_select"
+                )
+                
+                st.session_state.keys_to_compare = keys_to_compare
+            else:
+                st.sidebar.info("Need at least 2 keys for comparison")
+                st.session_state.keys_to_compare = []
     
     st.sidebar.markdown("---")
-    st.sidebar.caption("Controls moved to sidebar for better organization")
     
     # ============================================
-    # MAIN CONTENT AREA (DISPLAY ONLY)
+    # MAIN CONTENT AREA - DARK THEME
     # ============================================
+    
+    # Apply dark theme CSS
+    st.markdown("""
+    <style>
+    .stApp {
+        background-color: #0F172A;
+    }
+    
+    .info-box {
+        background-color: #1E293B;
+        padding: 20px;
+        border-radius: 10px;
+        border-left: 4px solid #3B82F6;
+        margin: 20px 0;
+        color: #E5E7EB;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .warning-box {
+        background-color: #1E293B;
+        padding: 20px;
+        border-radius: 10px;
+        border-left: 4px solid #EF4444;
+        margin: 20px 0;
+        color: #E5E7EB;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .demo-section {
+        background-color: #1E293B;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 15px 0;
+        color: #E5E7EB;
+        border: 1px solid #374151;
+    }
+    
+    .security-box {
+        background-color: #1E293B;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 10px;
+        border: 1px solid #374151;
+    }
+    
+    h1, h2, h3, h4, .stTitle, .stSubheader {
+        color: #FFFFFF !important;
+    }
+    
+    p, li, .stMarkdown {
+        color: #9CA3AF !important;
+    }
+    
+    .stExpander {
+        background-color: #1E293B;
+        border: 1px solid #374151;
+    }
+    
+    .stDataFrame {
+        background-color: #1E293B;
+    }
+    
+    code {
+        background-color: #0F172A !important;
+        color: #60A5FA !important;
+        border: 1px solid #374151 !important;
+    }
+    
+    .stCodeBlock {
+        background-color: #0F172A;
+    }
+    
+    /* Style for metrics */
+    div[data-testid="stMetric"] {
+        background-color: #1E293B;
+        border: 1px solid #374151;
+        border-radius: 8px;
+        padding: 10px;
+    }
+    
+    div[data-testid="stMetricLabel"] {
+        color: #9CA3AF;
+    }
+    
+    div[data-testid="stMetricValue"] {
+        color: #FFFFFF;
+    }
+    
+    div[data-testid="stMetricDelta"] {
+        color: #60A5FA;
+    }
+    
+    /* Style for tables */
+    .stTable {
+        background-color: #1E293B;
+        color: #E5E7EB;
+    }
+    
+    thead th {
+        background-color: #0F172A;
+        color: #FFFFFF;
+    }
+    
+    tbody tr {
+        background-color: #1E293B;
+        color: #9CA3AF;
+    }
+    
+    /* Style for expander headers */
+    .streamlit-expanderHeader {
+        background-color: #1E293B;
+        color: #FFFFFF;
+    }
+    
+    /* Style for success/error messages */
+    .stSuccess {
+        background-color: #064E3B;
+        color: #A7F3D0;
+        border: 1px solid #047857;
+    }
+    
+    .stError {
+        background-color: #7F1D1D;
+        color: #FECACA;
+        border: 1px solid #DC2626;
+    }
+    
+    .stInfo {
+        background-color: #1E3A8A;
+        color: #BFDBFE;
+        border: 1px solid #3B82F6;
+    }
+    </style>
+    """, unsafe_allow_html=True)
     
     # Introduction
     st.markdown("""
     <div class='info-box'>
     <h4>📖 How to Use This Demo:</h4>
     <ol>
-    <li>Use the <strong>sidebar controls on the left</strong> to generate RSA keys</li>
+    <li>Use the <strong style="color: #60A5FA;">sidebar controls on the left</strong> to generate RSA keys</li>
     <li>Choose between single key or multiple keys generation</li>
     <li>Results will appear automatically in this main area</li>
     <li>Use encryption/decryption controls in the sidebar</li>
@@ -520,44 +662,45 @@ elif demo_selection == "🔐 RSA Encryption":
                 st.metric("Quantum Attack", 
                          f"{quantum['time_ms']:.0f} ms",
                          delta="Shor's Algorithm",
-                         delta_color="inverse")
+                         delta_color="off")
             
-            # Security warning
+            # Security warning with color-coded status
             security_status = "✅ Secure" if key_size >= 2048 else "⚠️ Weak" if key_size >= 1024 else "❌ Insecure"
-            status_color = "green" if key_size >= 2048 else "orange" if key_size >= 1024 else "red"
+            status_color = "#10B981" if key_size >= 2048 else "#F59E0B" if key_size >= 1024 else "#EF4444"
             
             st.markdown(f"""
             <div class='warning-box'>
-            <h4>🛡️ Security Analysis: {security_status}</h4>
-            <p><strong>{key_size}-bit RSA Key Analysis:</strong></p>
+            <h4 style="color: {status_color};">🛡️ Security Analysis: {security_status}</h4>
+            <p><strong style="color: #E5E7EB;">{key_size}-bit RSA Key Analysis:</strong></p>
             <ul>
-            <li><strong>Classical Attack Time</strong>: {classical['readable']} using {classical['algorithm']}</li>
-            <li><strong>Quantum Attack Time</strong>: {quantum['readable']} using Shor's algorithm</li>
-            <li><strong>Hardware Required</strong>: {quantum['hardware']}</li>
-            <li><strong>Status</strong>: <span style='color:{status_color}; font-weight:bold;'>{security_status}</span></li>
+            <li><strong style="color: #3B82F6;">Classical Attack Time</strong>: {classical['readable']} using {classical['algorithm']}</li>
+            <li><strong style="color: #EF4444;">Quantum Attack Time</strong>: {quantum['readable']} using Shor's algorithm</li>
+            <li><strong style="color: #60A5FA;">Hardware Required</strong>: {quantum['hardware']}</li>
+            <li><strong style="color: {status_color};">Status</strong>: {security_status}</li>
             </ul>
+            <p style="color: #94A3B8; font-size: 0.9em;">{quantum['note']}</p>
             </div>
             """, unsafe_allow_html=True)
             
             # Key details
-            with st.expander("🔍 View Key Details & Verification"):
+            with st.expander("🔍 View Key Details & Verification", expanded=False):
                 col_a, col_b = st.columns(2)
                 
                 with col_a:
-                    st.write("**Public Key:**")
+                    st.markdown("**Public Key:**")
                     st.code(f"e = {current_key['e']}")
                     st.code(f"n = {current_key['n']}")
                     
-                    st.write("**Private Key:**")
+                    st.markdown("**Private Key:**")
                     st.code(f"d = {current_key['d']}")
                 
                 with col_b:
-                    st.write("**Prime Factors:**")
+                    st.markdown("**Prime Factors:**")
                     st.code(f"p = {current_key['p']}")
                     st.code(f"q = {current_key['q']}")
                     
                     # Verification
-                    st.write("**Verification Tests:**")
+                    st.markdown("**Verification Tests:**")
                     
                     # Test 1: Factorization
                     n_calculated = current_key['p'] * current_key['q']
@@ -578,11 +721,14 @@ elif demo_selection == "🔐 RSA Encryption":
         else:  # Multiple keys mode
             st.subheader("📊 Multiple RSA Keys Generated")
             
-            # Summary table of all generated keys
+            # Summary table with dark theme
             summary_data = []
             for size, data in st.session_state.generated_keys.items():
                 classical = estimate_classical_attack_time(size, "GNFS")
                 quantum = get_shors_time(size)
+                
+                status = '✅ Secure' if size >= 2048 else '⚠️ Weak' if size >= 1024 else '❌ Insecure'
+                status_color = '#10B981' if size >= 2048 else '#F59E0B' if size >= 1024 else '#EF4444'
                 
                 summary_data.append({
                     'Size': f"{size}-bit",
@@ -590,11 +736,12 @@ elif demo_selection == "🔐 RSA Encryption":
                     'Modulus Bits': data['bit_length'],
                     'Classical Security': classical['readable'],
                     'Quantum Attack': f"{quantum['time_ms']:.0f} ms",
-                    'Status': '✅ Secure' if size >= 2048 else '⚠️ Weak' if size >= 1024 else '❌ Insecure'
+                    'Status': f'<span style="color:{status_color}">{status}</span>'
                 })
             
-            # Display summary table
-            st.table(pd.DataFrame(summary_data))
+            # Display summary table with dark theme
+            df = pd.DataFrame(summary_data)
+            st.markdown(df.to_html(escape=False), unsafe_allow_html=True)
             
             # Currently selected key details
             if 'current_key_size' in st.session_state:
@@ -605,7 +752,8 @@ elif demo_selection == "🔐 RSA Encryption":
                 <div class='info-box'>
                 <h4>🎯 Currently Selected: {current_size}-bit Key</h4>
                 <p>Using this key for encryption/decryption operations.</p>
-                <p>Generation time: {current_data['keygen_time']:.4f} seconds</p>
+                <p><strong style="color: #60A5FA;">Generation time:</strong> {current_data['keygen_time']:.4f} seconds</p>
+                <p><strong style="color: #60A5FA;">Actual modulus bits:</strong> {current_data['bit_length']} bits</p>
                 </div>
                 """, unsafe_allow_html=True)
         
@@ -617,150 +765,208 @@ elif demo_selection == "🔐 RSA Encryption":
             col_enc, col_dec = st.columns(2)
             
             with col_enc:
-                st.write("**🔒 Encryption Results**")
-                st.write(f"Original message: `{st.session_state.original_message}`")
-                st.write(f"Encryption time: {st.session_state.enc_time:.6f} seconds")
-                st.write(f"Number of ciphertext chunks: {len(st.session_state.cipher)}")
+                st.markdown("""
+                <div class='demo-section'>
+                <h4>🔒 Encryption Results</h4>
+                """, unsafe_allow_html=True)
+                st.write(f"**Original message:** `{st.session_state.original_message}`")
+                st.write(f"**Encryption time:** {st.session_state.enc_time:.6f} seconds")
+                st.write(f"**Number of ciphertext chunks:** {len(st.session_state.cipher)}")
                 
                 if st.session_state.cipher:
-                    with st.expander("View Ciphertext"):
+                    with st.expander("View Ciphertext", expanded=False):
                         for i, chunk in enumerate(st.session_state.cipher[:5]):
                             st.code(f"Chunk {i}: {chunk}")
                         if len(st.session_state.cipher) > 5:
                             st.caption(f"... and {len(st.session_state.cipher)-5} more chunks")
+                st.markdown("</div>", unsafe_allow_html=True)
             
             with col_dec:
                 if 'decrypted' in st.session_state:
-                    st.write("**🔓 Decryption Results**")
-                    st.write(f"Decryption time: {st.session_state.dec_time:.6f} seconds")
+                    st.markdown("""
+                    <div class='demo-section'>
+                    <h4>🔓 Decryption Results</h4>
+                    """, unsafe_allow_html=True)
+                    st.write(f"**Decryption time:** {st.session_state.dec_time:.6f} seconds")
                     
                     # Verification
                     if st.session_state.decrypted == st.session_state.original_message:
                         st.success(f"✅ Decryption successful!")
-                        st.write(f"Decrypted message: `{st.session_state.decrypted}`")
+                        st.write(f"**Decrypted message:** `{st.session_state.decrypted}`")
                         st.balloons()
                     else:
                         st.error(f"❌ Decryption failed!")
-                        st.write(f"Expected: `{st.session_state.original_message}`")
-                        st.write(f"Got: `{st.session_state.decrypted}`")
+                        st.write(f"**Expected:** `{st.session_state.original_message}`")
+                        st.write(f"**Got:** `{st.session_state.decrypted}`")
+                    st.markdown("</div>", unsafe_allow_html=True)
         else:
             st.info("👈 Use the sidebar controls to encrypt a message")
         
-        # Performance Analysis (only for multiple keys mode)
-        if st.session_state.mode == "multiple" and 'keys_to_compare' in st.session_state:
+        # Performance Analysis (only for multiple keys mode) - UPDATED CHECK
+        if (st.session_state.mode == "multiple" and 
+            'keys_to_compare' in st.session_state and 
+            len(st.session_state.keys_to_compare) >= 2):
+            
             st.markdown("---")
             st.subheader("📈 Performance Analysis")
             
             keys_to_compare = st.session_state.keys_to_compare
             
-            if len(keys_to_compare) >= 2:
-                # Prepare data for visualization
-                sizes = []
-                gen_times = []
-                classical_times = []
-                quantum_times = []
-                security_scores = []
+            # Prepare data for visualization
+            sizes = []
+            gen_times = []
+            classical_times = []
+            quantum_times = []
+            security_scores = []
+            
+            for size in keys_to_compare:
+                data = st.session_state.generated_keys[size]
+                sizes.append(size)
+                gen_times.append(data['keygen_time'])
                 
-                for size in keys_to_compare:
-                    data = st.session_state.generated_keys[size]
-                    sizes.append(size)
-                    gen_times.append(data['keygen_time'])
-                    
-                    classical = estimate_classical_attack_time(size, "GNFS")
-                    quantum = get_shors_time(size)
-                    
-                    classical_times.append(math.log10(max(1, classical['time_seconds'])))
-                    quantum_times.append(math.log10(max(1, quantum['time_seconds'])))
-                    
-                    # Security score
-                    if size < 1024:
-                        score = 1
-                    elif size < 2048:
-                        score = 3
-                    elif size < 3072:
-                        score = 7
-                    else:
-                        score = 9
-                    security_scores.append(score)
+                classical = estimate_classical_attack_time(size, "GNFS")
+                quantum = get_shors_time(size)
                 
-                # Create visualizations
-                sns.set_style("whitegrid")
-                fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+                classical_times.append(math.log10(max(1, classical['time_seconds'])))
+                quantum_times.append(math.log10(max(1, quantum['time_seconds'])))
                 
-                # 1. Generation Time
-                colors = ['red' if s < 2048 else 'orange' if s < 3072 else 'green' for s in sizes]
-                bars = axes[0, 0].bar([str(s) for s in sizes], gen_times, color=colors, alpha=0.7)
-                axes[0, 0].set_xlabel('Key Size (bits)')
-                axes[0, 0].set_ylabel('Generation Time (seconds)')
-                axes[0, 0].set_title('Key Generation Performance')
-                axes[0, 0].tick_params(axis='x', rotation=45)
-                
-                # Add value labels
-                for bar in bars:
-                    height = bar.get_height()
-                    axes[0, 0].text(bar.get_x() + bar.get_width()/2., height,
-                                   f'{height:.3f}s', ha='center', va='bottom', fontsize=9)
-                
-                # 2. Attack Time Comparison
-                axes[0, 1].plot(sizes, classical_times, 'o-', linewidth=2, markersize=8, label='Classical (GNFS)')
-                axes[0, 1].plot(sizes, quantum_times, 's-', linewidth=2, markersize=8, label='Quantum (Shor)')
-                axes[0, 1].set_xlabel('Key Size (bits)')
-                axes[0, 1].set_ylabel('Log₁₀(Attack Time in seconds)')
-                axes[0, 1].set_title('Attack Time Scaling')
-                axes[0, 1].legend()
-                axes[0, 1].grid(True, alpha=0.3)
-                
-                # 3. Security Score
-                scatter = axes[1, 0].scatter(sizes, security_scores, 
-                                           c=security_scores, cmap='RdYlGn', 
-                                           s=200, alpha=0.7, edgecolors='black')
-                axes[1, 0].set_xlabel('Key Size (bits)')
-                axes[1, 0].set_ylabel('Security Score (1-10)')
-                axes[1, 0].set_title('Security Level')
-                axes[1, 0].set_yticks(range(1, 11))
-                axes[1, 0].grid(True, alpha=0.3)
-                
-                # Add labels
-                for i, (size, score) in enumerate(zip(sizes, security_scores)):
-                    status = 'Insecure' if score <= 3 else 'Weak' if score <= 5 else 'Secure' if score <= 7 else 'Strong'
-                    axes[1, 0].annotate(status, (size, score), 
-                                       xytext=(5, 5), textcoords='offset points',
-                                       fontsize=9, fontweight='bold')
-                
-                # 4. Time vs Security Trade-off
-                axes[1, 1].scatter(gen_times, security_scores, s=150, alpha=0.7, c=colors, edgecolors='black')
-                axes[1, 1].set_xlabel('Generation Time (seconds)')
-                axes[1, 1].set_ylabel('Security Score (1-10)')
-                axes[1, 1].set_title('Time vs Security Trade-off')
-                axes[1, 1].grid(True, alpha=0.3)
-                
-                # Add labels
-                for i, (gen_time, score, size) in enumerate(zip(gen_times, security_scores, sizes)):
-                    axes[1, 1].annotate(f'{size}-bit', (gen_time, score), 
-                                       xytext=(5, 5), textcoords='offset points',
-                                       fontsize=9)
-                
-                plt.tight_layout()
-                st.pyplot(fig)
-                
-                # Recommendations
-                st.markdown("""
-                <div class='info-box'>
-                <h4>🎯 Recommendations Based on Comparison</h4>
-                
-                **Best Choices:**
-                - **For testing/learning**: Smallest key for fastest generation
-                - **For production**: RSA-2048 (balance of speed & security)
-                - **For long-term security**: RSA-3072 or RSA-4096
-                
-                **Key Insights:**
-                - Generation time increases ~2x when doubling key size
-                - Security increases exponentially with key size
-                - Quantum attacks reduce security by polynomial factor
-                </div>
-                """, unsafe_allow_html=True)
-            else:
-                st.info("Select at least 2 keys in the sidebar to compare performance")
+                # Security score
+                if size < 1024:
+                    score = 1
+                elif size < 2048:
+                    score = 3
+                elif size < 3072:
+                    score = 7
+                else:
+                    score = 9
+                security_scores.append(score)
+            
+            # Create dark-themed visualizations
+            plt.style.use('dark_background')
+            fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+            
+            # Set dark background for all subplots
+            for ax in axes.flat:
+                ax.set_facecolor('#0F172A')
+            
+            fig.patch.set_facecolor('#0F172A')
+            
+            # 1. Generation Time
+            colors = ['#EF4444' if s < 2048 else '#F59E0B' if s < 3072 else '#10B981' for s in sizes]
+            bars = axes[0, 0].bar([str(s) for s in sizes], gen_times, color=colors, alpha=0.8)
+            axes[0, 0].set_xlabel('Key Size (bits)', color='#9CA3AF')
+            axes[0, 0].set_ylabel('Generation Time (seconds)', color='#9CA3AF')
+            axes[0, 0].set_title('Key Generation Performance', color='#FFFFFF', fontweight='bold')
+            axes[0, 0].tick_params(axis='x', rotation=45, colors='#9CA3AF')
+            axes[0, 0].tick_params(axis='y', colors='#9CA3AF')
+            
+            # Customize spines
+            for spine in axes[0, 0].spines.values():
+                spine.set_color('#374151')
+                spine.set_linewidth(1)
+            
+            # Add value labels
+            for bar in bars:
+                height = bar.get_height()
+                axes[0, 0].text(bar.get_x() + bar.get_width()/2., height,
+                               f'{height:.3f}s', ha='center', va='bottom', 
+                               fontsize=9, color='#FFFFFF', fontweight='bold')
+            
+            # 2. Attack Time Comparison
+            axes[0, 1].plot(sizes, classical_times, 'o-', linewidth=3, markersize=10, 
+                           color='#3B82F6', label='Classical (GNFS)', alpha=0.9)
+            axes[0, 1].plot(sizes, quantum_times, 's-', linewidth=3, markersize=10, 
+                           color='#EF4444', label='Quantum (Shor)', alpha=0.9)
+            axes[0, 1].set_xlabel('Key Size (bits)', color='#9CA3AF')
+            axes[0, 1].set_ylabel('Log₁₀(Attack Time in seconds)', color='#9CA3AF')
+            axes[0, 1].set_title('Attack Time Scaling', color='#FFFFFF', fontweight='bold')
+            axes[0, 1].legend(facecolor='#1E293B', edgecolor='#374151', labelcolor='#E5E7EB')
+            axes[0, 1].grid(True, alpha=0.2, color='#374151')
+            axes[0, 1].tick_params(colors='#9CA3AF')
+            
+            for spine in axes[0, 1].spines.values():
+                spine.set_color('#374151')
+                spine.set_linewidth(1)
+            
+            # Add glow effect
+            axes[0, 1].fill_between(sizes, classical_times, quantum_times, alpha=0.1, color='#EF4444')
+            
+            # 3. Security Score
+            scatter = axes[1, 0].scatter(sizes, security_scores, 
+                                       c=security_scores, cmap='RdYlGn_r', 
+                                       s=300, alpha=0.8, edgecolors='#FFFFFF', linewidth=2)
+            axes[1, 0].set_xlabel('Key Size (bits)', color='#9CA3AF')
+            axes[1, 0].set_ylabel('Security Score (1-10)', color='#9CA3AF')
+            axes[1, 0].set_title('Security Level', color='#FFFFFF', fontweight='bold')
+            axes[1, 0].set_yticks(range(1, 11))
+            axes[1, 0].grid(True, alpha=0.2, color='#374151')
+            axes[1, 0].tick_params(colors='#9CA3AF')
+            
+            for spine in axes[1, 0].spines.values():
+                spine.set_color('#374151')
+                spine.set_linewidth(1)
+            
+            # Add labels
+            for i, (size, score) in enumerate(zip(sizes, security_scores)):
+                status = 'Insecure' if score <= 3 else 'Weak' if score <= 5 else 'Secure' if score <= 7 else 'Strong'
+                color = '#EF4444' if score <= 3 else '#F59E0B' if score <= 5 else '#10B981' if score <= 7 else '#3B82F6'
+                axes[1, 0].annotate(status, (size, score), 
+                                   xytext=(5, 5), textcoords='offset points',
+                                   fontsize=9, fontweight='bold', color=color)
+            
+            # 4. Time vs Security Trade-off
+            scatter2 = axes[1, 1].scatter(gen_times, security_scores, s=300, alpha=0.8, 
+                                        c=colors, edgecolors='#FFFFFF', linewidth=2)
+            axes[1, 1].set_xlabel('Generation Time (seconds)', color='#9CA3AF')
+            axes[1, 1].set_ylabel('Security Score (1-10)', color='#9CA3AF')
+            axes[1, 1].set_title('Time vs Security Trade-off', color='#FFFFFF', fontweight='bold')
+            axes[1, 1].grid(True, alpha=0.2, color='#374151')
+            axes[1, 1].tick_params(colors='#9CA3AF')
+            
+            for spine in axes[1, 1].spines.values():
+                spine.set_color('#374151')
+                spine.set_linewidth(1)
+            
+            # Add labels
+            for i, (gen_time, score, size) in enumerate(zip(gen_times, security_scores, sizes)):
+                axes[1, 1].annotate(f'{size}-bit', (gen_time, score), 
+                                   xytext=(5, 5), textcoords='offset points',
+                                   fontsize=9, color='#FFFFFF', fontweight='bold')
+            
+            # Add correlation line
+            if len(gen_times) > 1:
+                z = np.polyfit(gen_times, security_scores, 1)
+                p = np.poly1d(z)
+                axes[1, 1].plot(gen_times, p(gen_times), color='#60A5FA', 
+                               linestyle='--', alpha=0.5, label='Trend')
+                axes[1, 1].legend(facecolor='#1E293B', edgecolor='#374151', labelcolor='#E5E7EB')
+            
+            plt.tight_layout()
+            st.pyplot(fig)
+            
+            # Recommendations
+            st.markdown("""
+            <div class='info-box'>
+            <h4>🎯 Recommendations Based on Comparison</h4>
+            
+            <p style="color: #60A5FA; font-weight: bold;">Best Choices:</p>
+            <ul>
+            <li><strong style="color: #F59E0B;">For testing/learning</strong>: Smallest key for fastest generation</li>
+            <li><strong style="color: #10B981;">For production</strong>: RSA-2048 (balance of speed & security)</li>
+            <li><strong style="color: #3B82F6;">For long-term security</strong>: RSA-3072 or RSA-4096</li>
+            </ul>
+            
+            <p style="color: #60A5FA; font-weight: bold;">Key Insights:</p>
+            <ul>
+            <li>Generation time increases ~2x when doubling key size</li>
+            <li>Security increases exponentially with key size</li>
+            <li>Quantum attacks reduce security by polynomial factor</li>
+            <li>Trade-off: Higher security = longer key generation time</li>
+            </ul>
+            </div>
+            """, unsafe_allow_html=True)
+        elif st.session_state.mode == "multiple":
+            st.info("Select at least 2 keys in the sidebar to compare performance")
     
     else:
         # Initial state - no keys generated yet
@@ -774,10 +980,10 @@ elif demo_selection == "🔐 RSA Encryption":
             <div class='demo-section'>
             <h4>🎯 Quick Start</h4>
             <ol>
-            <li>Go to the <strong>sidebar on the left</strong></li>
-            <li>Select <strong>"Single Key"</strong> or <strong>"Multiple Keys"</strong> mode</li>
+            <li>Go to the <strong style="color: #60A5FA;">sidebar on the left</strong></li>
+            <li>Select <strong style="color: #3B82F6;">"Single Key"</strong> or <strong style="color: #3B82F6;">"Multiple Keys"</strong> mode</li>
             <li>Choose your key size(s)</li>
-            <li>Click the <strong>Generate</strong> button</li>
+            <li>Click the <strong style="color: #10B981;">Generate</strong> button</li>
             <li>Results will appear here automatically</li>
             </ol>
             </div>
@@ -788,40 +994,87 @@ elif demo_selection == "🔐 RSA Encryption":
             <div class='demo-section'>
             <h4>🔐 RSA Key Size Guide</h4>
             
-            **Recommended Sizes:**
-            - **1024-bit**: For testing only (insecure)
-            - **2048-bit**: Minimum for production
-            - **3072-bit**: Recommended for new systems
-            - **4096-bit**: Maximum practical size
+            <p style="color: #60A5FA; font-weight: bold;">Recommended Sizes:</p>
+            <ul>
+            <li><strong style="color: #EF4444;">1024-bit</strong>: For testing only (insecure)</li>
+            <li><strong style="color: #F59E0B;">2048-bit</strong>: Minimum for production</li>
+            <li><strong style="color: #10B981;">3072-bit</strong>: Recommended for new systems</li>
+            <li><strong style="color: #3B82F6;">4096-bit</strong>: Maximum practical size</li>
+            </ul>
             
-            **Generation Time Estimates:**
-            - RSA-1024: ~0.01-0.05 seconds
-            - RSA-2048: ~0.05-0.15 seconds
-            - RSA-3072: ~0.15-0.30 seconds
-            - RSA-4096: ~0.30-0.60 seconds
+            <p style="color: #60A5FA; font-weight: bold;">Generation Time Estimates:</p>
+            <ul>
+            <li>RSA-1024: ~0.01-0.05 seconds</li>
+            <li>RSA-2048: ~0.05-0.15 seconds</li>
+            <li>RSA-3072: ~0.15-0.30 seconds</li>
+            <li>RSA-4096: ~0.30-0.60 seconds</li>
+            </ul>
             </div>
             """, unsafe_allow_html=True)
         
-        # Show example of what will be displayed
+        # Show example of what will be displayed - DARK THEME VERSION
         st.markdown("---")
         st.subheader("📊 Example Output (After Generation)")
         
-        with st.expander("Click to see what will be displayed"):
-            st.write("""
-            **After generating keys, you'll see:**
+        with st.expander("Click to see what will be displayed", expanded=False):
+            # Create dark-themed example visualization
+            col1, col2 = st.columns([1, 1])
             
-            1. **Key Information**: Size, generation time, security metrics
-            2. **Security Analysis**: Classical vs quantum attack times
-            3. **Key Details**: Public/private keys and prime factors
-            4. **Encryption/Decryption**: Test messages and verification
-            5. **Performance Charts**: Comparison of different key sizes
+            with col1:
+                st.markdown("""
+                <div style="background-color: #1E293B; padding: 20px; border-radius: 10px; border: 1px solid #374151;">
+                <h4 style="color: #FFFFFF; margin-top: 0;">🔐 Key Information</h4>
+                """, unsafe_allow_html=True)
+                
+                st.markdown("""
+                <div style="color: #9CA3AF;">
+                <p><strong style="color: #60A5FA;">Key Size:</strong> 2048 bits</p>
+                <p><strong style="color: #60A5FA;">Generation Time:</strong> 0.125 seconds</p>
+                <p><strong style="color: #60A5FA;">Prime Factors:</strong> 1024-bit primes</p>
+                <p><strong style="color: #60A5FA;">Key Strength:</strong> High</p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # Example key details
+                st.markdown("""
+                <div style="background-color: #0F172A; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                <p style="color: #9CA3AF; font-family: monospace; font-size: 10px; margin: 0;">
+                Public Key:<br>
+                e: 65537<br>
+                n: 0xAB12CD34...
+                </p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                st.markdown("</div>", unsafe_allow_html=True)
             
-            **Example Metrics:**
-            - Key Size: 2048 bits
-            - Generation Time: 0.125 seconds
-            - Classical Security: 10⁸⁰ operations (centuries)
-            - Quantum Attack: 8,000 ms (8 seconds)
-            """)
+            with col2:
+                st.markdown("""
+                <div style="background-color: #1E293B; padding: 20px; border-radius: 10px; border: 1px solid #374151;">
+                <h4 style="color: #FFFFFF; margin-top: 0;">⚠️ Security Analysis</h4>
+                """, unsafe_allow_html=True)
+                
+                st.markdown("""
+                <div style="color: #9CA3AF;">
+                <p><strong style="color: #EF4444;">Classical Attack:</strong> 10⁸⁰ operations</p>
+                <p style="font-size: 12px; color: #94A3B8;">≈ Centuries of computation</p>
+                
+                <p><strong style="color: #10B981;">Quantum Attack:</strong> 8,000 ms</p>
+                <p style="font-size: 12px; color: #94A3B8;">≈ 8 seconds with Shor's algorithm</p>
+                
+                <p><strong style="color: #F59E0B;">Security Margin:</strong> High (for now)</p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # Security status indicator
+                st.markdown("""
+                <div style="background-color: #0F172A; padding: 10px; border-radius: 5px; margin-top: 10px; border-left: 4px solid #EF4444;">
+                <p style="color: #FFFFFF; font-weight: bold; margin: 0;">⚠️ VULNERABLE TO QUANTUM</p>
+                <p style="color: #9CA3AF; font-size: 11px; margin: 5px 0 0 0;">Post-quantum cryptography recommended</p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                st.markdown("</div>", unsafe_allow_html=True)
 
 # -------------------------------
 # QUANTUM BB84 DEMO
@@ -848,32 +1101,93 @@ elif demo_selection == "⚛️ Quantum BB84":
         return int(job.result().get_memory()[0])
     
     def draw_bloch_sphere(bit, basis, title="Qubit State"):
+        # Create figure with dark theme
         fig, ax = plt.subplots(figsize=(5, 5))
-        circle = Circle((0, 0), 1, fill=False, linewidth=2, color='black')
+        
+        # Set dark theme
+        fig.patch.set_facecolor('#0F172A')
+        ax.set_facecolor('#0F172A')
+        
+        # Draw circle
+        circle = Circle((0, 0), 1, fill=False, linewidth=2, color='#374151')
         ax.add_patch(circle)
         
-        if basis == 0:
-            ax.quiver(0, 0, 0, 0.8, color='red', scale=1, scale_units='xy', angles='xy')
-            ax.quiver(0, 0, 0, -0.8, color='red', scale=1, scale_units='xy', angles='xy')
-            ax.text(0, 0.9, '|0⟩', color='red', ha='center', fontsize=12)
-            ax.text(0, -0.9, '|1⟩', color='red', ha='center', fontsize=12)
-            x, y = (0, 0.8) if bit == 0 else (0, -0.8)
-        else:
-            ax.quiver(0, 0, 0.566, 0.566, color='blue', scale=1, scale_units='xy', angles='xy')
-            ax.quiver(0, 0, -0.566, -0.566, color='blue', scale=1, scale_units='xy', angles='xy')
-            ax.text(0.7, 0.7, '|+⟩', color='blue', ha='center', fontsize=12)
-            ax.text(-0.7, -0.7, '|-⟩', color='blue', ha='center', fontsize=12)
-            x, y = (0.566, 0.566) if bit == 0 else (-0.566, -0.566)
+        # Color scheme for dark theme
+        z_color = '#3B82F6'  # Blue for Z basis
+        x_color = '#10B981'  # Green for X basis
+        state_color = '#EF4444'  # Red for state marker
+        text_color = '#FFFFFF'
         
-        ax.scatter(x, y, s=150, color='green', edgecolors='black', zorder=5)
-        state_name = '|0⟩' if (basis==0 and bit==0) else '|1⟩' if (basis==0 and bit==1) else '|+⟩' if (basis==1 and bit==0) else '|-⟩'
-        ax.text(x, y+0.1, state_name, color='green', ha='center', fontsize=12, fontweight='bold')
+        # Draw basis axes
+        if basis == 0:  # Z basis
+            # Draw Z axis (vertical)
+            ax.quiver(0, 0, 0, 0.8, color=z_color, scale=1, scale_units='xy', 
+                     angles='xy', width=0.015, alpha=0.7)
+            ax.quiver(0, 0, 0, -0.8, color=z_color, scale=1, scale_units='xy', 
+                     angles='xy', width=0.015, alpha=0.7)
+            ax.text(0, 0.9, '|0⟩', color=z_color, ha='center', fontsize=14, fontweight='bold')
+            ax.text(0, -0.9, '|1⟩', color=z_color, ha='center', fontsize=14, fontweight='bold')
+            ax.text(0, -1.1, 'Z', color='#9CA3AF', ha='center', fontsize=12)
+            
+            # Determine state position
+            if bit == 0:  # |0⟩ state
+                x, y = (0, 0.8)
+                state_name = '|0⟩'
+            else:  # |1⟩ state
+                x, y = (0, -0.8)
+                state_name = '|1⟩'
+                
+        else:  # X basis
+            # Draw X axis (horizontal)
+            ax.quiver(0, 0, 0.566, 0.566, color=x_color, scale=1, scale_units='xy', 
+                     angles='xy', width=0.015, alpha=0.7)
+            ax.quiver(0, 0, -0.566, -0.566, color=x_color, scale=1, scale_units='xy', 
+                     angles='xy', width=0.015, alpha=0.7)
+            ax.text(0.7, 0.7, '|+⟩', color=x_color, ha='center', fontsize=14, fontweight='bold')
+            ax.text(-0.7, -0.7, '|-⟩', color=x_color, ha='center', fontsize=14, fontweight='bold')
+            ax.text(-0.9, -0.9, 'X', color='#9CA3AF', ha='center', fontsize=12)
+            
+            # Determine state position
+            if bit == 0:  # |+⟩ state
+                x, y = (0.566, 0.566)
+                state_name = '|+⟩'
+            else:  # |-⟩ state
+                x, y = (-0.566, -0.566)
+                state_name = '|-⟩'
         
+        # Draw state marker with glow effect
+        ax.scatter(x, y, s=250, color=state_color, edgecolors='white', 
+                  linewidth=3, zorder=5, alpha=0.9)
+        
+        # Add glow effect around the marker
+        for size, alpha in [(350, 0.2), (300, 0.3), (250, 0.4)]:
+            ax.scatter(x, y, s=size, color=state_color, alpha=alpha, zorder=4)
+        
+        # Add state label
+        ax.text(x, y + 0.15, state_name, color=state_color, ha='center', 
+               fontsize=14, fontweight='bold', 
+               bbox=dict(boxstyle="round,pad=0.2", facecolor="#1E293B", 
+                        edgecolor=state_color, alpha=0.8))
+        
+        # Set limits and aspect ratio
         ax.set_xlim(-1.2, 1.2)
         ax.set_ylim(-1.2, 1.2)
         ax.set_aspect('equal')
-        ax.set_title(title, fontsize=12)
+        
+        # Add title with dark theme
+        ax.set_title(title, fontsize=16, fontweight='bold', color=text_color, pad=20)
+        
+        # Remove axes
         ax.axis('off')
+        
+        # Add info box
+        basis_name = 'Z (+)' if basis == 0 else 'X (×)'
+        info_text = f"Bit: {bit}\nBasis: {basis_name}"
+        ax.text(0.02, 0.98, info_text, transform=ax.transAxes, 
+               fontsize=11, color='#9CA3AF',
+               bbox=dict(boxstyle="round,pad=0.3", facecolor="#1E293B", 
+                        edgecolor='#374151', alpha=0.8))
+        
         return fig
     
     # Sidebar controls for BB84
