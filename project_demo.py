@@ -35,92 +35,354 @@ demo_selection = st.sidebar.radio(
 def apply_custom_styles():
     st.markdown("""
     <style>
-    /* --- Existing styles (unchanged) --- */
+    /* ====== BASE THEME ====== */
+    .stApp {
+        background-color: #0F172A !important;
+    }
+    
+    /* ====== TYPOGRAPHY ====== */
+    h1, h2, h3, h4, h5, h6, 
+    .stTitle, .stSubheader, 
+    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, 
+    .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
+        color: #FFFFFF !important;
+    }
+    
+    p, li, .stMarkdown:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6),
+    .stMarkdown p, .stMarkdown li {
+        color: #9CA3AF !important;
+    }
+    
     .main-header {
-        color: #1E3A8A;
+        color: #60A5FA !important;
         font-size: 2.5rem;
         text-align: center;
         margin-bottom: 2rem;
+        font-weight: bold;
     }
-    .demo-section {
-        background-color: #F8FAFC;
-        color: #1E3A8A;
+    
+    /* ====== CONTAINERS & CARDS ====== */
+    .info-box {
+        background-color: #1E293B;
         padding: 20px;
         border-radius: 10px;
-        margin-bottom: 20px;
         border-left: 4px solid #3B82F6;
+        margin: 20px 0;
+        color: #E5E7EB;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     }
+    
+    .warning-box {
+        background-color: #1E293B;
+        padding: 20px;
+        border-radius: 10px;
+        border-left: 4px solid #EF4444;
+        margin: 20px 0;
+        color: #E5E7EB;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+    
+    .demo-section {
+        background-color: #1E293B;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 15px 0;
+        color: #E5E7EB;
+        border: 1px solid #374151;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .security-box {
+        background-color: #1E293B;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 10px;
+        border: 1px solid #374151;
+    }
+    
     .metric-card {
-        background-color: white;
+        background-color: #1E293B;
         padding: 15px;
         border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         text-align: center;
+        border: 1px solid #374151;
+        color: #E5E7EB;
     }
-    .warning-box {
-        background-color: #FEF3C7;
-        border-left: 4px solid #F59E0B;
-        color: #1E3A8A;
-        padding: 15px;
-        border-radius: 5px;
-        margin: 15px 0;
-    }
-    .info-box {
-        background-color: #DBEAFE;
-        border-left: 4px solid #3B82F6;
-        color: #1E3A8A;
-        padding: 15px;
-        border-radius: 5px;
-        margin: 15px 0;
-    }
-
+    
+    /* ====== QUBIT CARDS (SPECIFIC TO BB84) ====== */
     .qubit-card {
-        background-color: #F8FAFC;
+        background-color: #1E293B;
         border-radius: 12px;
         padding: 14px;
-        border: 1.5px solid #BFDBFE;
-        color: #1E3A8A;
+        border: 1.5px solid #374151;
+        color: #E5E7EB;
         text-align: center;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         font-size: 0.9rem;
+        transition: transform 0.2s ease, border-color 0.2s ease;
     }
-
-    .qubit-card h4 {
-        margin-bottom: 8px;
-        font-size: 1.05rem;
-    }
-
+    
     .qubit-card:hover {
         transform: translateY(-3px);
+        border-color: #60A5FA;
     }
-
+    
     .qubit-safe {
         border-left: 6px solid #3B82F6;
+        background-color: rgba(59, 130, 246, 0.1);
     }
-
+    
     .qubit-eve {
         border-left: 6px solid #EF4444;
-        background-color: #FEF2F2;
+        background-color: rgba(239, 68, 68, 0.1);
     }
-
+    
+    /* ====== PILLS & BADGES ====== */
     .basis-pill {
         display: inline-block;
-        padding: 3px 8px;
+        padding: 4px 10px;
         border-radius: 999px;
         font-size: 0.8rem;
         margin-left: 5px;
-        background-color: #DBEAFE;
-        color: #1E3A8A;
+        background-color: rgba(59, 130, 246, 0.2);
+        color: #60A5FA;
         font-weight: 600;
+        border: 1px solid rgba(59, 130, 246, 0.3);
     }
-
+    
     .eve-pill {
-        background-color: #FEE2E2;
-        color: #991B1B;
-        padding: 3px 8px;
+        background-color: rgba(239, 68, 68, 0.2);
+        color: #F87171;
+        padding: 4px 10px;
         border-radius: 999px;
         font-size: 0.8rem;
         font-weight: 600;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    
+    /* ====== STREAMLIT COMPONENTS ====== */
+    /* Expanders */
+    .stExpander {
+        background-color: #1E293B;
+        border: 1px solid #374151;
+        border-radius: 8px;
+    }
+    
+    .streamlit-expanderHeader {
+        background-color: #1E293B !important;
+        color: #FFFFFF !important;
+        font-weight: 600;
+    }
+    
+    .streamlit-expanderHeader:hover {
+        background-color: #1E293B !important;
+        color: #60A5FA !important;
+    }
+    
+    /* Tables */
+    .stTable {
+        background-color: #1E293B !important;
+        color: #E5E7EB !important;
+        border: 1px solid #374151 !important;
+        border-radius: 8px !important;
+    }
+    
+    .stDataFrame {
+        background-color: #1E293B !important;
+    }
+    
+    thead th {
+        background-color: #0F172A !important;
+        color: #FFFFFF !important;
+        font-weight: 600;
+        border-bottom: 2px solid #374151 !important;
+    }
+    
+    tbody tr {
+        background-color: #1E293B !important;
+        color: #9CA3AF !important;
+        border-bottom: 1px solid #374151 !important;
+    }
+    
+    tbody tr:hover {
+        background-color: #1E40AF !important;
+        color: #FFFFFF !important;
+    }
+    
+    /* Code blocks */
+    code {
+        background-color: #0F172A !important;
+        color: #60A5FA !important;
+        border: 1px solid #374151 !important;
+        border-radius: 4px !important;
+        padding: 2px 6px !important;
+    }
+    
+    .stCodeBlock {
+        background-color: #0F172A !important;
+        border: 1px solid #374151 !important;
+        border-radius: 8px !important;
+    }
+    
+    pre {
+        background-color: #0F172A !important;
+        color: #60A5FA !important;
+    }
+    
+    /* Metrics */
+    div[data-testid="stMetric"] {
+        background-color: #1E293B !important;
+        border: 1px solid #374151 !important;
+        border-radius: 8px !important;
+        padding: 15px !important;
+    }
+    
+    div[data-testid="stMetricLabel"] {
+        color: #9CA3AF !important;
+        font-size: 0.9rem !important;
+    }
+    
+    div[data-testid="stMetricValue"] {
+        color: #FFFFFF !important;
+        font-size: 1.5rem !important;
+        font-weight: bold !important;
+    }
+    
+    div[data-testid="stMetricDelta"] {
+        color: #60A5FA !important;
+        font-size: 0.9rem !important;
+    }
+    
+    /* Status Messages */
+    .stSuccess {
+        background-color: #064E3B !important;
+        color: #A7F3D0 !important;
+        border: 1px solid #047857 !important;
+        border-radius: 8px !important;
+    }
+    
+    .stError {
+        background-color: #7F1D1D !important;
+        color: #FECACA !important;
+        border: 1px solid #DC2626 !important;
+        border-radius: 8px !important;
+    }
+    
+    .stInfo {
+        background-color: #1E3A8A !important;
+        color: #BFDBFE !important;
+        border: 1px solid #3B82F6 !important;
+        border-radius: 8px !important;
+    }
+    
+    .stWarning {
+        background-color: #78350F !important;
+        color: #FDE68A !important;
+        border: 1px solid #D97706 !important;
+        border-radius: 8px !important;
+    }
+    
+    /* Inputs & Buttons */
+    .stButton button {
+        background-color: #3B82F6 !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+        padding: 8px 16px !important;
+        transition: background-color 0.2s ease !important;
+    }
+    
+    .stButton button:hover {
+        background-color: #2563EB !important;
+    }
+    
+    .stButton button:active {
+        background-color: #1D4ED8 !important;
+    }
+    
+    .stTextInput input, .stTextArea textarea, .stSelectbox select {
+        background-color: #1E293B !important;
+        color: #E5E7EB !important;
+        border: 1px solid #374151 !important;
+        border-radius: 6px !important;
+    }
+    
+    .stTextInput input:focus, .stTextArea textarea:focus, .stSelectbox select:focus {
+        border-color: #3B82F6 !important;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+    }
+    
+    .stSlider [data-baseweb="slider"] {
+        color: #3B82F6 !important;
+    }
+    
+    .stCheckbox label {
+        color: #9CA3AF !important;
+    }
+    
+    .stRadio label {
+        color: #9CA3AF !important;
+    }
+    
+    /* Sidebar */
+    [data-testid="stSidebar"] {
+        background-color: #0F172A !important;
+        border-right: 1px solid #374151 !important;
+    }
+    
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3,
+    [data-testid="stSidebar"] h4,
+    [data-testid="stSidebar"] .stMarkdown {
+        color: #E5E7EB !important;
+    }
+    
+    [data-testid="stSidebar"] p {
+        color: #9CA3AF !important;
+    }
+    
+    /* Tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        background-color: #0F172A !important;
+        border-bottom: 1px solid #374151 !important;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        color: #9CA3AF !important;
+        background-color: #0F172A !important;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        color: #3B82F6 !important;
+        border-bottom: 2px solid #3B82F6 !important;
+    }
+    
+    /* Progress bars */
+    .stProgress > div > div > div {
+        background-color: #3B82F6 !important;
+    }
+    
+    /* Tooltips */
+    [data-baseweb="tooltip"] {
+        background-color: #1E293B !important;
+        color: #E5E7EB !important;
+        border: 1px solid #374151 !important;
+        border-radius: 6px !important;
+    }
+    
+    /* Divider lines */
+    hr {
+        border-color: #374151 !important;
+        margin: 20px 0 !important;
+    }
+    
+    /* Captions */
+    .stCaption {
+        color: #6B7280 !important;
+        font-size: 0.85rem !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -482,140 +744,6 @@ elif demo_selection == "🔐 RSA Encryption":
     # ============================================
     # MAIN CONTENT AREA - DARK THEME
     # ============================================
-    
-    # Apply dark theme CSS
-    st.markdown("""
-    <style>
-    .stApp {
-        background-color: #0F172A;
-    }
-    
-    .info-box {
-        background-color: #1E293B;
-        padding: 20px;
-        border-radius: 10px;
-        border-left: 4px solid #3B82F6;
-        margin: 20px 0;
-        color: #E5E7EB;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    
-    .warning-box {
-        background-color: #1E293B;
-        padding: 20px;
-        border-radius: 10px;
-        border-left: 4px solid #EF4444;
-        margin: 20px 0;
-        color: #E5E7EB;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    
-    .demo-section {
-        background-color: #1E293B;
-        padding: 20px;
-        border-radius: 10px;
-        margin: 15px 0;
-        color: #E5E7EB;
-        border: 1px solid #374151;
-    }
-    
-    .security-box {
-        background-color: #1E293B;
-        padding: 15px;
-        border-radius: 8px;
-        margin: 10px;
-        border: 1px solid #374151;
-    }
-    
-    h1, h2, h3, h4, .stTitle, .stSubheader {
-        color: #FFFFFF !important;
-    }
-    
-    p, li, .stMarkdown {
-        color: #9CA3AF !important;
-    }
-    
-    .stExpander {
-        background-color: #1E293B;
-        border: 1px solid #374151;
-    }
-    
-    .stDataFrame {
-        background-color: #1E293B;
-    }
-    
-    code {
-        background-color: #0F172A !important;
-        color: #60A5FA !important;
-        border: 1px solid #374151 !important;
-    }
-    
-    .stCodeBlock {
-        background-color: #0F172A;
-    }
-    
-    /* Style for metrics */
-    div[data-testid="stMetric"] {
-        background-color: #1E293B;
-        border: 1px solid #374151;
-        border-radius: 8px;
-        padding: 10px;
-    }
-    
-    div[data-testid="stMetricLabel"] {
-        color: #9CA3AF;
-    }
-    
-    div[data-testid="stMetricValue"] {
-        color: #FFFFFF;
-    }
-    
-    div[data-testid="stMetricDelta"] {
-        color: #60A5FA;
-    }
-    
-    /* Style for tables */
-    .stTable {
-        background-color: #1E293B;
-        color: #E5E7EB;
-    }
-    
-    thead th {
-        background-color: #0F172A;
-        color: #FFFFFF;
-    }
-    
-    tbody tr {
-        background-color: #1E293B;
-        color: #9CA3AF;
-    }
-    
-    /* Style for expander headers */
-    .streamlit-expanderHeader {
-        background-color: #1E293B;
-        color: #FFFFFF;
-    }
-    
-    /* Style for success/error messages */
-    .stSuccess {
-        background-color: #064E3B;
-        color: #A7F3D0;
-        border: 1px solid #047857;
-    }
-    
-    .stError {
-        background-color: #7F1D1D;
-        color: #FECACA;
-        border: 1px solid #DC2626;
-    }
-    
-    .stInfo {
-        background-color: #1E3A8A;
-        color: #BFDBFE;
-        border: 1px solid #3B82F6;
-    }
-    </style>
-    """, unsafe_allow_html=True)
     
     # Introduction
     st.markdown("""
@@ -1754,7 +1882,7 @@ elif demo_selection == "⚛️ Quantum BB84":
 elif demo_selection == "📊 Comparison":
     st.title("📊 RSA vs Quantum BB84 Comparison")
     
-    tab1, tab2, tab3 = st.tabs(["Security", "Performance", "Future Outlook"])
+    tab1, tab2 = st.tabs(["Security", "Future Outlook"])
     
     with tab1:
         st.subheader("Security Level vs Computing Power: The Quantum Cliff")
@@ -1785,59 +1913,6 @@ elif demo_selection == "📊 Comparison":
         st.pyplot(fig)
     
     with tab2:
-        st.subheader("Key Distribution and Size Comparison")
-        col1, col2 = st.columns(2)
-
-        with col1:
-            st.markdown("""
-            ### RSA Key Exchange
-            * **Primary Key:** Asymmetric 2048/4096-bit key used for security foundation.
-            * **Final Secure Key:** The RSA private key **encrypts a small symmetric session key** (e.g., 256 bits) used for the bulk data transfer (AES).
-            * **Security Dependency:** If the 2048-bit key is broken by Shor's, the 256-bit session key is instantly revealed.
-            """)
-            
-        with col2:
-            st.markdown("""
-            ### BB84 Key Generation
-            * **Primary Key:** Ephemeral quantum states (photons) used for security foundation.
-            * **Final Secure Key:** The BB84 protocol **generates a symmetric key** (e.g., up to 256 bits) bit-by-bit, guaranteed by physics.
-            * **Security Dependency:** The key is **Information-Theoretically Secure**. No amount of computational power can reconstruct the key without leaving a detectable error (QBER).
-            """)
-        
-        # Performance chart
-        st.subheader("Key Generation Rate Comparison")
-        
-        categories = ['Key Generation', 'Encryption', 'Max Distance', 'Infrastructure Cost']
-        rsa_scores = [8, 9, 1000, 6]  # Distance in km, others 1-10
-        bb84_scores = [4, 5, 100, 2]   # Distance in km, others 1-10
-        
-        x = np.arange(len(categories))
-        width = 0.35
-        
-        fig, ax = plt.subplots(figsize=(10, 5))
-        bars1 = ax.bar(x - width/2, rsa_scores, width, label='RSA', color='red', alpha=0.7)
-        bars2 = ax.bar(x + width/2, bb84_scores, width, label='BB84', color='green', alpha=0.7)
-        
-        ax.set_xlabel('Performance Metric')
-        ax.set_ylabel('Score (1-10, except distance in km)')
-        ax.set_title('Performance Comparison')
-        ax.set_xticks(x)
-        ax.set_xticklabels(categories)
-        ax.legend()
-        
-        # Add value labels
-        for bars in [bars1, bars2]:
-            for bar in bars:
-                height = bar.get_height()
-                ax.annotate(f'{height}',
-                           xy=(bar.get_x() + bar.get_width() / 2, height),
-                           xytext=(0, 3),
-                           textcoords="offset points",
-                           ha='center', va='bottom')
-        
-        st.pyplot(fig)
-    
-    with tab3:
         st.subheader("🚀 Future Outlook")
         
         st.markdown("""
